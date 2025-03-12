@@ -1,5 +1,5 @@
 """
-File parser module for AQWSE application.
+File parser module for QEO application.
 Handles import of CSV and Excel files with project and developer data.
 """
 

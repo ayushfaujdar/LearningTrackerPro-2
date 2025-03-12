@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "aqwse-development-key")
+app.secret_key = os.environ.get("SESSION_SECRET", "qeo-development-key")
 
 # Initialize quantum optimizer and OpenAI insights generator
 ibm_token = os.environ.get("IBM_QUANTUM_TOKEN")
