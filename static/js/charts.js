@@ -1,12 +1,18 @@
+
 // Chart configuration and setup
 let costChart, timeChart, skillChart;
 let charts = {};
 
 // Initialize the charts
 function initializeCharts() {
-    const costChartCtx = document.getElementById('cost-chart').getContext('2d');
-    const timeChartCtx = document.getElementById('time-chart').getContext('2d');
-    const skillChartCtx = document.getElementById('skill-match-chart').getContext('2d');
+    const costChartCtx = document.getElementById('cost-chart')?.getContext('2d');
+    const timeChartCtx = document.getElementById('time-chart')?.getContext('2d');
+    
+    // Check if elements exist before initializing
+    if (!costChartCtx || !timeChartCtx) {
+        console.warn("Chart elements not found in the DOM yet. Charts will be initialized when needed.");
+        return;
+    }
 
     // Common chart settings for reduced size and horizontal flow
     const commonOptions = {
@@ -129,39 +135,51 @@ function initializeCharts() {
         }
     });
 
-    // Skill Match Chart
-    skillChart = new Chart(skillChartCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Matched', 'Not Matched'],
-            datasets: [{
-                label: 'Skill Match',
-                data: [0, 100],
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.5)',
-                    'rgba(201, 203, 207, 0.5)'
-                ],
-                borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(201, 203, 207, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            ...commonOptions,
-            cutout: '70%'
-        }
-    });
-
     // Store charts in an object for easy access
-    charts = { costChart, timeChart, skillChart };
+    charts = { costChart, timeChart };
 }
 
 // Update charts with new data
 function updateCharts(result) {
-    if (!costChart || !timeChart || !skillChart) {
+    // Make sure the chart elements exist
+    const costChartEl = document.getElementById('cost-chart');
+    const timeChartEl = document.getElementById('time-chart');
+
+    if (!costChartEl || !timeChartEl) {
+        console.warn("Chart elements not found. Skipping chart update.");
+        
+        // Update benefit metrics even if charts aren't available
+        const budget = parseFloat(document.getElementById('budget')?.value) || 10000;
+        const deadline = parseFloat(document.getElementById('deadline')?.value) || 30;
+        const totalCost = result.total_cost || 0;
+        const completionTime = result.completion_time || 0;
+        
+        let avgSkillMatch = 0;
+        if (result.assignments && result.assignments.length > 0) {
+            avgSkillMatch = result.assignments.reduce((sum, a) => sum + a.skill_match, 0) / result.assignments.length;
+        }
+        
+        // Update benefit metrics
+        const costSavingsPercentage = (budget > 0) ? Math.round((1 - totalCost / budget) * 100) : 0;
+        const timeEfficiencyPercentage = (deadline > 0) ? Math.round((1 - completionTime / deadline) * 100) : 0;
+        const skillUtilizationPercentage = Math.round(avgSkillMatch);
+
+        document.getElementById('cost-savings').textContent = costSavingsPercentage + '%';
+        document.getElementById('time-efficiency').textContent = timeEfficiencyPercentage + '%';
+        document.getElementById('skill-match').textContent = skillUtilizationPercentage + '%';
+        
+        return;
+    }
+
+    // Initialize charts if they don't exist yet
+    if (!costChart || !timeChart) {
         initializeCharts();
+        
+        // If charts still couldn't be initialized, exit
+        if (!costChart || !timeChart) {
+            console.warn("Charts couldn't be initialized. Skipping chart update.");
+            return;
+        }
     }
 
     // Update cost chart
@@ -178,14 +196,11 @@ function updateCharts(result) {
     timeChart.data.datasets[0].data = [deadline, completionTime];
     timeChart.update();
 
-    // Update skill match chart
+    // Calculate skill match
     let avgSkillMatch = 0;
     if (result.assignments && result.assignments.length > 0) {
         avgSkillMatch = result.assignments.reduce((sum, a) => sum + a.skill_match, 0) / result.assignments.length;
     }
-
-    skillChart.data.datasets[0].data = [avgSkillMatch, 100 - avgSkillMatch];
-    skillChart.update();
 
     // Update benefit metrics
     const costSavingsPercentage = (budget > 0) ? Math.round((1 - totalCost / budget) * 100) : 0;
@@ -201,10 +216,13 @@ function updateCharts(result) {
 window.addEventListener('resize', function() {
     if (costChart) costChart.resize();
     if (timeChart) timeChart.resize();
-    if (skillChart) skillChart.resize();
 });
 
 // Ensure charts are initialized when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    initializeCharts();
+    // Wait for the results section to be displayed before initializing charts
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection && window.getComputedStyle(resultsSection).display !== 'none') {
+        initializeCharts();
+    }
 });

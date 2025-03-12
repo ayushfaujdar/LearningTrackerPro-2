@@ -365,7 +365,7 @@ function resetForm() {
  * Display the optimization results
  */
 function displayResults(result, formData) {
-    // Show results section
+    // Make results section visible first
     document.getElementById('results-section').style.display = 'block';
 
     // Update metrics
@@ -959,8 +959,7 @@ function fillSampleData() {
                     <label>Skills (comma separated)</label>
                     <input type="text" class="dev-skills" value="${dev.skills}" placeholder="Python, UI, Database">
                 </div>
-                <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
-            </div>
+                <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button            </div>
         `;
 
         devContainer.appendChild(newRow);
@@ -1030,3 +1029,19 @@ function fillSampleData() {
  * Update charts with new data
  * This function is now implemented in charts.js
  */
+function updateCharts(result) {
+    // Check if results section is visible before updating charts
+    if (document.getElementById('results-section').style.display !== 'none') {
+        // Update cost chart
+        const costCtx = document.getElementById('costChart').getContext('2d');
+        new Chart(costCtx, {
+            // Chart configuration
+        });
+
+        // Update time chart
+        const timeCtx = document.getElementById('timeChart').getContext('2d');
+        new Chart(timeCtx, {
+            // Chart configuration
+        });
+    }
+}
