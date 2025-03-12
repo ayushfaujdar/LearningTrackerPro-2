@@ -9,10 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function initApp() {
     // Initialize form event listeners
     initFormEventListeners();
-    
+
     // Initialize history from localStorage
     loadHistoryFromStorage();
-    
+
     // Pre-fill form with sample data for demo purposes
     // Uncomment to enable demo mode
     // fillSampleData();
@@ -24,28 +24,28 @@ function initApp() {
 function initFormEventListeners() {
     // Add developer button
     document.getElementById('add-developer').addEventListener('click', addDeveloperRow);
-    
+
     // Add project button
     document.getElementById('add-project').addEventListener('click', addProjectRow);
-    
+
     // Form submission
     document.getElementById('optimization-form').addEventListener('submit', handleFormSubmit);
-    
+
     // Reset button
     document.getElementById('reset-btn').addEventListener('click', resetForm);
-    
+
     // Data import button
     document.getElementById('import-data-btn').addEventListener('click', toggleImportOptions);
-    
+
     // Sample data button
     document.getElementById('sample-data-btn').addEventListener('click', loadSampleData);
-    
+
     // CSV/Excel import button
     document.getElementById('csv-import-btn').addEventListener('click', triggerFileUpload);
-    
+
     // File upload change
     document.getElementById('file-upload').addEventListener('change', handleFileUpload);
-    
+
     // Enable remove buttons when there's more than one row
     updateRemoveButtons();
 }
@@ -57,7 +57,7 @@ function addDeveloperRow() {
     const devContainer = document.getElementById('developers-container');
     const newRow = document.createElement('div');
     newRow.className = 'developer-row';
-    
+
     newRow.innerHTML = `
         <div class="form-row">
             <div class="form-group">
@@ -79,18 +79,18 @@ function addDeveloperRow() {
             <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
         </div>
     `;
-    
+
     devContainer.appendChild(newRow);
-    
+
     // Initialize the feather icon
     feather.replace();
-    
+
     // Add event listener to remove button
     newRow.querySelector('.remove-btn').addEventListener('click', function() {
         devContainer.removeChild(newRow);
         updateRemoveButtons();
     });
-    
+
     // Enable/disable remove buttons
     updateRemoveButtons();
 }
@@ -102,7 +102,7 @@ function addProjectRow() {
     const projContainer = document.getElementById('projects-container');
     const newRow = document.createElement('div');
     newRow.className = 'project-row';
-    
+
     newRow.innerHTML = `
         <div class="form-row">
             <div class="form-group">
@@ -128,18 +128,18 @@ function addProjectRow() {
             <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
         </div>
     `;
-    
+
     projContainer.appendChild(newRow);
-    
+
     // Initialize the feather icon
     feather.replace();
-    
+
     // Add event listener to remove button
     newRow.querySelector('.remove-btn').addEventListener('click', function() {
         projContainer.removeChild(newRow);
         updateRemoveButtons();
     });
-    
+
     // Enable/disable remove buttons
     updateRemoveButtons();
 }
@@ -152,15 +152,15 @@ function updateRemoveButtons() {
     // Developers
     const devRows = document.querySelectorAll('#developers-container .developer-row');
     const devButtons = document.querySelectorAll('#developers-container .remove-btn');
-    
+
     devButtons.forEach(btn => {
         btn.disabled = devRows.length <= 1;
     });
-    
+
     // Projects
     const projRows = document.querySelectorAll('#projects-container .project-row');
     const projButtons = document.querySelectorAll('#projects-container .remove-btn');
-    
+
     projButtons.forEach(btn => {
         btn.disabled = projRows.length <= 1;
     });
@@ -171,7 +171,7 @@ function updateRemoveButtons() {
  */
 async function handleFormSubmit(event) {
     event.preventDefault();
-    
+
     try {
         // Show loading state
         const optimizeBtn = document.getElementById('optimize-btn');
@@ -179,15 +179,15 @@ async function handleFormSubmit(event) {
         optimizeBtn.innerHTML = '<i data-feather="loader"></i> Processing...';
         optimizeBtn.disabled = true;
         feather.replace();
-        
+
         // Collect form data
         const formData = collectFormData();
-        
+
         // Validate form data
         if (!validateFormData(formData)) {
             throw new Error('Please check your inputs and try again.');
         }
-        
+
         // Send data to server
         const response = await fetch('/optimize', {
             method: 'POST',
@@ -196,25 +196,25 @@ async function handleFormSubmit(event) {
             },
             body: JSON.stringify(formData)
         });
-        
+
         // Check for errors
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || 'Optimization failed');
         }
-        
+
         // Process response
         const result = await response.json();
-        
+
         // Display results
         displayResults(result, formData);
-        
+
         // Save to history
         saveToHistory(formData, result);
-        
+
         // Scroll to results
         document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
-        
+
     } catch (error) {
         console.error('Error:', error);
         alert(error.message || 'An error occurred during optimization');
@@ -234,14 +234,14 @@ function collectFormData() {
     // Get budget and deadline
     const budget = parseFloat(document.getElementById('budget').value);
     const deadline = parseFloat(document.getElementById('deadline').value);
-    
+
     // Get developers
     const developers = [];
     const devNames = document.querySelectorAll('.dev-name');
     const devRates = document.querySelectorAll('.dev-rate');
     const devHours = document.querySelectorAll('.dev-hours');
     const devSkills = document.querySelectorAll('.dev-skills');
-    
+
     for (let i = 0; i < devNames.length; i++) {
         if (devNames[i].value.trim()) {
             developers.push({
@@ -252,7 +252,7 @@ function collectFormData() {
             });
         }
     }
-    
+
     // Get projects
     const projects = [];
     const projNames = document.querySelectorAll('.proj-name');
@@ -260,7 +260,7 @@ function collectFormData() {
     const projPriorities = document.querySelectorAll('.proj-priority');
     const projDeps = document.querySelectorAll('.proj-deps');
     const projSkills = document.querySelectorAll('.proj-skills');
-    
+
     for (let i = 0; i < projNames.length; i++) {
         if (projNames[i].value.trim()) {
             projects.push({
@@ -272,7 +272,7 @@ function collectFormData() {
             });
         }
     }
-    
+
     return {
         budget,
         deadline,
@@ -290,12 +290,12 @@ function validateFormData(data) {
         alert('Please add at least one developer');
         return false;
     }
-    
+
     if (data.projects.length === 0) {
         alert('Please add at least one project');
         return false;
     }
-    
+
     // Check for unique developer names
     const devNames = new Set();
     for (const dev of data.developers) {
@@ -305,7 +305,7 @@ function validateFormData(data) {
         }
         devNames.add(dev.name);
     }
-    
+
     // Check for unique project names
     const projNames = new Set();
     for (const proj of data.projects) {
@@ -315,7 +315,7 @@ function validateFormData(data) {
         }
         projNames.add(proj.name);
     }
-    
+
     // Check for valid dependencies
     for (const proj of data.projects) {
         for (const dep of proj.dependencies) {
@@ -323,7 +323,7 @@ function validateFormData(data) {
                 alert(`Dependency "${dep}" in project "${proj.name}" doesn't exist`);
                 return false;
             }
-            
+
             // Check for circular dependencies
             if (dep === proj.name) {
                 alert(`Project "${proj.name}" cannot depend on itself`);
@@ -331,7 +331,7 @@ function validateFormData(data) {
             }
         }
     }
-    
+
     return true;
 }
 
@@ -342,21 +342,21 @@ function resetForm() {
     // Reset budget and deadline
     document.getElementById('budget').value = '';
     document.getElementById('deadline').value = '';
-    
+
     // Reset developers (keep one empty row)
     const devContainer = document.getElementById('developers-container');
     while (devContainer.firstChild) {
         devContainer.removeChild(devContainer.firstChild);
     }
     addDeveloperRow();
-    
+
     // Reset projects (keep one empty row)
     const projContainer = document.getElementById('projects-container');
     while (projContainer.firstChild) {
         projContainer.removeChild(projContainer.firstChild);
     }
     addProjectRow();
-    
+
     // Hide results
     document.getElementById('results-section').style.display = 'none';
 }
@@ -367,7 +367,7 @@ function resetForm() {
 function displayResults(result, formData) {
     // Show results section
     document.getElementById('results-section').style.display = 'block';
-    
+
     // Update metrics
     document.getElementById('total-cost').textContent = result.total_cost.toFixed(2);
     document.getElementById('budget-value').textContent = formData.budget.toFixed(2);
@@ -375,11 +375,11 @@ function displayResults(result, formData) {
     document.getElementById('completion-time').textContent = result.completion_time.toFixed(1);
     document.getElementById('deadline-value').textContent = formData.deadline.toFixed(1);
     document.getElementById('time-buffer').textContent = result.time_buffer.toFixed(1);
-    
+
     // Update risks
     const risksList = document.getElementById('risks-list');
     risksList.innerHTML = '';
-    
+
     if (result.risks && result.risks.length > 0) {
         result.risks.forEach(risk => {
             const li = document.createElement('li');
@@ -392,14 +392,14 @@ function displayResults(result, formData) {
         li.textContent = 'No risks identified';
         risksList.appendChild(li);
     }
-    
+
     // Update assignments table
     const assignmentsBody = document.getElementById('assignments-body');
     assignmentsBody.innerHTML = '';
-    
+
     result.assignments.forEach(assignment => {
         const tr = document.createElement('tr');
-        
+
         tr.innerHTML = `
             <td>${assignment.developer}</td>
             <td>${assignment.project}</td>
@@ -407,17 +407,17 @@ function displayResults(result, formData) {
             <td>$${assignment.cost.toFixed(2)}</td>
             <td>${assignment.skill_match}%</td>
         `;
-        
+
         assignmentsBody.appendChild(tr);
     });
-    
+
     // Update AI explanation
     document.getElementById('ai-explanation').textContent = result.explanation;
-    
+
     // Update recommendations
     const recommendationsList = document.getElementById('recommendations-list');
     recommendationsList.innerHTML = '';
-    
+
     if (result.recommendations && result.recommendations.length > 0) {
         result.recommendations.forEach(recommendation => {
             const li = document.createElement('li');
@@ -425,7 +425,7 @@ function displayResults(result, formData) {
             recommendationsList.appendChild(li);
         });
     }
-    
+
     // Update charts
     updateCharts(result);
 }
@@ -436,7 +436,7 @@ function displayResults(result, formData) {
 function saveToHistory(formData, result) {
     // Get existing history from localStorage
     let history = JSON.parse(localStorage.getItem('aqwseHistory')) || [];
-    
+
     // Create a history entry
     const historyEntry = {
         id: Date.now(), // Use timestamp as ID
@@ -444,16 +444,16 @@ function saveToHistory(formData, result) {
         formData: formData,
         result: result
     };
-    
+
     // Add to history (limit to 10 entries)
     history.unshift(historyEntry);
     if (history.length > 10) {
         history = history.slice(0, 10);
     }
-    
+
     // Save to localStorage
     localStorage.setItem('aqwseHistory', JSON.stringify(history));
-    
+
     // Update history display
     loadHistoryFromStorage();
 }
@@ -465,32 +465,32 @@ function loadHistoryFromStorage() {
     const history = JSON.parse(localStorage.getItem('aqwseHistory')) || [];
     const historyList = document.getElementById('history-list');
     const emptyState = document.getElementById('history-empty-state');
-    
+
     // Clear existing items
     historyList.innerHTML = '';
-    
+
     if (history.length === 0) {
         emptyState.style.display = 'block';
         return;
     }
-    
+
     // Hide empty state and show history
     emptyState.style.display = 'none';
-    
+
     // Add history items
     history.forEach(entry => {
         const historyItem = document.createElement('li');
         historyItem.className = 'history-item';
         historyItem.dataset.id = entry.id;
-        
+
         // Format date
         const date = new Date(entry.timestamp);
         const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-        
+
         // Create title from the data
         const devCount = entry.formData.developers.length;
         const projCount = entry.formData.projects.length;
-        
+
         historyItem.innerHTML = `
             <div class="history-item-header">
                 <div class="history-item-title">${devCount} Developers, ${projCount} Projects</div>
@@ -508,15 +508,15 @@ function loadHistoryFromStorage() {
                 </div>
             </div>
         `;
-        
+
         // Add click event to reload this optimization
         historyItem.addEventListener('click', () => {
             loadOptimizationFromHistory(entry);
         });
-        
+
         historyList.appendChild(historyItem);
     });
-    
+
     // Initialize feather icons
     feather.replace();
 }
@@ -528,24 +528,24 @@ function loadOptimizationFromHistory(historyEntry) {
     // Populate form with data from history
     document.getElementById('budget').value = historyEntry.formData.budget;
     document.getElementById('deadline').value = historyEntry.formData.deadline;
-    
+
     // Reset developers and projects containers
     const devContainer = document.getElementById('developers-container');
     const projContainer = document.getElementById('projects-container');
-    
+
     while (devContainer.firstChild) {
         devContainer.removeChild(devContainer.firstChild);
     }
-    
+
     while (projContainer.firstChild) {
         projContainer.removeChild(projContainer.firstChild);
     }
-    
+
     // Add developers from history
     historyEntry.formData.developers.forEach(dev => {
         const newRow = document.createElement('div');
         newRow.className = 'developer-row';
-        
+
         newRow.innerHTML = `
             <div class="form-row">
                 <div class="form-group">
@@ -567,21 +567,21 @@ function loadOptimizationFromHistory(historyEntry) {
                 <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
             </div>
         `;
-        
+
         devContainer.appendChild(newRow);
-        
+
         // Add event listener to remove button
         newRow.querySelector('.remove-btn').addEventListener('click', function() {
             devContainer.removeChild(newRow);
             updateRemoveButtons();
         });
     });
-    
+
     // Add projects from history
     historyEntry.formData.projects.forEach(proj => {
         const newRow = document.createElement('div');
         newRow.className = 'project-row';
-        
+
         newRow.innerHTML = `
             <div class="form-row">
                 <div class="form-group">
@@ -607,25 +607,25 @@ function loadOptimizationFromHistory(historyEntry) {
                 <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
             </div>
         `;
-        
+
         projContainer.appendChild(newRow);
-        
+
         // Add event listener to remove button
         newRow.querySelector('.remove-btn').addEventListener('click', function() {
             projContainer.removeChild(newRow);
             updateRemoveButtons();
         });
     });
-    
+
     // Initialize feather icons
     feather.replace();
-    
+
     // Update remove buttons
     updateRemoveButtons();
-    
+
     // Display results
     displayResults(historyEntry.result, historyEntry.formData);
-    
+
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -655,7 +655,7 @@ function triggerFileUpload() {
 async function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     try {
         // Show loading state
         const importBtn = document.getElementById('csv-import-btn');
@@ -663,42 +663,42 @@ async function handleFileUpload(event) {
         importBtn.innerHTML = '<i data-feather="loader"></i> Importing...';
         importBtn.disabled = true;
         feather.replace();
-        
+
         // Create form data
         const formData = new FormData();
         formData.append('file', file);
-        
+
         // Send to server
         const response = await fetch('/import-file', {
             method: 'POST',
             body: formData
         });
-        
+
         // Check for errors
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || 'File import failed');
         }
-        
+
         // Process response
         const result = await response.json();
-        
+
         // Fill form with imported data
         fillFormWithImportedData(result);
-        
+
         // Hide import options
         document.getElementById('import-options').classList.add('hidden');
-        
+
         // Show success message
         alert(`Successfully imported data from ${file.name}`);
-        
+
     } catch (error) {
         console.error('Error importing file:', error);
         alert(error.message || 'An error occurred during file import');
     } finally {
         // Reset file input
         event.target.value = '';
-        
+
         // Restore button state
         const importBtn = document.getElementById('csv-import-btn');
         importBtn.innerHTML = '<i data-feather="upload"></i> Import CSV/Excel';
@@ -714,24 +714,24 @@ function fillFormWithImportedData(data) {
     // Set budget and deadline
     document.getElementById('budget').value = data.budget;
     document.getElementById('deadline').value = data.deadline;
-    
+
     // Reset developers and projects containers
     const devContainer = document.getElementById('developers-container');
     const projContainer = document.getElementById('projects-container');
-    
+
     while (devContainer.firstChild) {
         devContainer.removeChild(devContainer.firstChild);
     }
-    
+
     while (projContainer.firstChild) {
         projContainer.removeChild(projContainer.firstChild);
     }
-    
+
     // Add developers
     data.developers.forEach(dev => {
         const newRow = document.createElement('div');
         newRow.className = 'developer-row';
-        
+
         newRow.innerHTML = `
             <div class="form-row">
                 <div class="form-group">
@@ -753,21 +753,21 @@ function fillFormWithImportedData(data) {
                 <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
             </div>
         `;
-        
+
         devContainer.appendChild(newRow);
-        
+
         // Add event listener to remove button
         newRow.querySelector('.remove-btn').addEventListener('click', function() {
             devContainer.removeChild(newRow);
             updateRemoveButtons();
         });
     });
-    
+
     // Add projects
     data.projects.forEach(proj => {
         const newRow = document.createElement('div');
         newRow.className = 'project-row';
-        
+
         newRow.innerHTML = `
             <div class="form-row">
                 <div class="form-group">
@@ -793,19 +793,19 @@ function fillFormWithImportedData(data) {
                 <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
             </div>
         `;
-        
+
         projContainer.appendChild(newRow);
-        
+
         // Add event listener to remove button
         newRow.querySelector('.remove-btn').addEventListener('click', function() {
             projContainer.removeChild(newRow);
             updateRemoveButtons();
         });
     });
-    
+
     // Initialize feather icons
     feather.replace();
-    
+
     // Update remove buttons
     updateRemoveButtons();
 }
@@ -821,11 +821,11 @@ async function loadSampleData() {
         sampleBtn.innerHTML = '<i data-feather="loader"></i> Loading...';
         sampleBtn.disabled = true;
         feather.replace();
-        
+
         // First try Excel file, then fallback to CSV if that fails
         let response;
         let file;
-        
+
         try {
             // Try Excel file first
             response = await fetch('/static/sample_data/sample_workflow.xlsx');
@@ -833,11 +833,13 @@ async function loadSampleData() {
                 const blob = await response.blob();
                 file = new File([blob], 'sample_workflow.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 console.log("Using Excel sample file");
+            } else {
+                console.warn("Excel file not found or couldn't be loaded");
             }
         } catch (error) {
-            console.warn("Excel file failed to load, trying CSV");
+            console.warn("Excel file failed to load, trying CSV", error);
         }
-        
+
         if (!file) {
             // Fallback to CSV if Excel failed
             response = await fetch('/static/sample_data/sample_workflow.csv');
@@ -848,36 +850,36 @@ async function loadSampleData() {
             file = new File([blob], 'sample_workflow.csv', { type: 'text/csv' });
             console.log("Using CSV sample file");
         }
-        
+
         // Create form data
         const formData = new FormData();
         formData.append('file', file);
-        
+
         // Send to server for parsing
         const parseResponse = await fetch('/import-file', {
             method: 'POST',
             body: formData
         });
-        
+
         // Check for errors
         if (!parseResponse.ok) {
             const errorData = await parseResponse.json();
             throw new Error(errorData.error || 'Sample data import failed');
         }
-        
+
         // Process response
         const result = await parseResponse.json();
-        
+
         // Fill form with sample data
         fillFormWithImportedData(result);
-        
+
         // Hide import options
         document.getElementById('import-options').classList.add('hidden');
-        
+
     } catch (error) {
         console.error('Error loading sample data:', error);
         alert(error.message || 'An error occurred loading sample data');
-        
+
         // Fallback to hard-coded sample data
         fillSampleData();
     } finally {
@@ -896,19 +898,19 @@ function fillSampleData() {
     // Set budget and deadline
     document.getElementById('budget').value = 50000;
     document.getElementById('deadline').value = 30;
-    
+
     // Reset developers and projects containers
     const devContainer = document.getElementById('developers-container');
     const projContainer = document.getElementById('projects-container');
-    
+
     while (devContainer.firstChild) {
         devContainer.removeChild(devContainer.firstChild);
     }
-    
+
     while (projContainer.firstChild) {
         projContainer.removeChild(projContainer.firstChild);
     }
-    
+
     // Add sample developers
     const sampleDevs = [
         { name: 'John Dev', rate: 75, hours: 8, skills: 'Python, Database, Backend' },
@@ -917,11 +919,11 @@ function fillSampleData() {
         { name: 'Lisa Test', rate: 65, hours: 7, skills: 'QA, Testing, Documentation' },
         { name: 'Dave Ops', rate: 90, hours: 6, skills: 'DevOps, AWS, Security' }
     ];
-    
+
     sampleDevs.forEach(dev => {
         const newRow = document.createElement('div');
         newRow.className = 'developer-row';
-        
+
         newRow.innerHTML = `
             <div class="form-row">
                 <div class="form-group">
@@ -943,29 +945,28 @@ function fillSampleData() {
                 <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
             </div>
         `;
-        
+
         devContainer.appendChild(newRow);
-        
+
         // Add event listener to remove button
         newRow.querySelector('.remove-btn').addEventListener('click', function() {
             devContainer.removeChild(newRow);
             updateRemoveButtons();
         });
     });
-    
+
     // Add sample projects
     const sampleProjs = [
         { name: 'API Development', hours: 80, priority: 5, deps: '', skills: 'Python, Backend, Database' },
         { name: 'User Interface', hours: 60, priority: 4, deps: '', skills: 'UI, UX, Frontend, JavaScript' },
         { name: 'Testing', hours: 40, priority: 3, deps: 'API Development, User Interface', skills: 'QA, Testing' },
         { name: 'Deployment', hours: 30, priority: 2, deps: 'Testing', skills: 'DevOps, AWS' },
-        { name: 'Documentation', hours: 20, priority: 1, deps: 'API Development, User Interface', skills: 'Documentation' }
-    ];
-    
+        { name: 'Documentation', hours: 20, priority: 1, deps: 'API Development, User Interface', skills: 'Documentation' }    ];
+
     sampleProjs.forEach(proj => {
         const newRow = document.createElement('div');
         newRow.className = 'project-row';
-        
+
         newRow.innerHTML = `
             <div class="form-row">
                 <div class="form-group">
@@ -991,19 +992,28 @@ function fillSampleData() {
                 <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
             </div>
         `;
-        
+
         projContainer.appendChild(newRow);
-        
+
         // Add event listener to remove button
         newRow.querySelector('.remove-btn').addEventListener('click', function() {
             projContainer.removeChild(newRow);
             updateRemoveButtons();
         });
     });
-    
+
     // Initialize feather icons
     feather.replace();
-    
+
     // Update remove buttons
     updateRemoveButtons();
+}
+
+/**
+ * Update charts with new data
+ */
+function updateCharts(result) {
+    // Placeholder for chart updates
+    // This section needs to be implemented based on the specific charting library used
+    console.log('Charts updated with new data:', result);
 }

@@ -19,6 +19,15 @@ app.secret_key = os.environ.get("SESSION_SECRET", "aqwse-development-key")
 ibm_token = os.environ.get("IBM_QUANTUM_TOKEN")
 openai_key = os.environ.get("OPENAI_API_KEY")
 
+# Validate API keys (basic validation)
+if ibm_token and (len(ibm_token) < 20 or ibm_token.startswith('Your IBM')):
+    logger.warning("IBM Quantum token appears invalid - disabling quantum features")
+    ibm_token = None
+    
+if openai_key and (len(openai_key) < 20 or not openai_key.startswith(('sk-', 'org-'))):
+    logger.warning("OpenAI API key appears invalid - disabling OpenAI features")
+    openai_key = None
+
 # Track if we're using quantum computing and/or OpenAI
 use_quantum = ibm_token is not None
 use_openai = openai_key is not None

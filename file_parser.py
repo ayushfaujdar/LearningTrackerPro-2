@@ -8,6 +8,7 @@ import io
 import traceback
 import logging
 from typing import Dict, List, Any, Tuple
+import os
 
 def parse_uploaded_file(file_content: bytes, filename: str) -> Dict[str, Any]:
     """
@@ -21,24 +22,35 @@ def parse_uploaded_file(file_content: bytes, filename: str) -> Dict[str, Any]:
         Dictionary with extracted data
     """
     try:
-        if filename.lower().endswith('.xlsx') or filename.lower().endswith('.xls'):
-            return _parse_excel(file_content)
-        elif filename.lower().endswith('.csv'):
-            return _parse_csv(file_content)
-        else:
-            return {
-                "success": False,
-                "error": "Unsupported file format. Please upload a CSV or Excel file."
-            }
-    except Exception as e:
-        # Log the full exception for debugging
-        error_details = traceback.format_exc()
-        logging.exception(f"Error parsing file: {error_details}") #Improved logging
+        # Determine file type from extension
+        _, ext = os.path.splitext(filename)
+        ext = ext.lower()
 
+        logging.info(f"Attempting to parse file: {filename} with extension {ext}")
+
+        if ext == '.csv':
+            # Parse CSV file
+            logging.info("Parsing as CSV file")
+            return _parse_csv(file_content)
+        elif ext in ['.xlsx', '.xls']:
+            # Parse Excel file
+            logging.info("Parsing as Excel file")
+            return _parse_excel(file_content)
+        else:
+            # Unsupported file type
+            logging.error(f"Unsupported file type: {ext}")
+            return {
+                'success': False,
+                'error': f"Unsupported file type: {ext}"
+            }
+
+    except Exception as e:
+        logging.error(f"Error parsing uploaded file: {str(e)}")
+        import traceback
+        logging.error(f"Traceback: {traceback.format_exc()}")
         return {
-            "success": False,
-            "error": f"Error parsing file: {str(e)}",
-            "details": error_details
+            'success': False,
+            'error': f"Error parsing file: {str(e)}"
         }
 
 def _parse_csv(file_content: bytes) -> Dict[str, Any]:

@@ -29,6 +29,11 @@ class OpenAIInsightsGenerator:
         
         if self.api_key:
             try:
+                # Validate the API key format first (basic check)
+                if len(self.api_key) < 20 or not self.api_key.startswith(('sk-', 'org-')):
+                    logger.warning("OpenAI API key appears to be invalid - using fallback insights")
+                    return
+                    
                 # Initialize the OpenAI client - handle different package versions
                 if hasattr(openai, 'OpenAI'):
                     # New OpenAI package structure

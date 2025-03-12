@@ -12,7 +12,7 @@ function initQuantumVisualization() {
             const canvas = document.createElement('canvas');
             canvas.id = 'quantum-canvas';
             canvas.width = container.offsetWidth;
-            canvas.height = 300; // Fixed height
+            canvas.height = 200; // Reduced height
             container.appendChild(canvas);
             
             // Add description
