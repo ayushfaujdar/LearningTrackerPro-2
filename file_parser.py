@@ -203,13 +203,15 @@ def _extract_metadata(rows: List[List[str]]) -> Tuple[float, float]:
             if row[0].lower() == 'budget':
                 try:
                     budget = float(row[1])
+                    logging.info(f"Found budget: {budget}")
                 except ValueError:
-                    logging.warning("Invalid budget value in CSV.")
+                    logging.warning(f"Invalid budget value in CSV: {row[1]}")
             elif row[0].lower() == 'deadline':
                 try:
                     deadline = float(row[1])
+                    logging.info(f"Found deadline: {deadline}")
                 except ValueError:
-                    logging.warning("Invalid deadline value in CSV.")
+                    logging.warning(f"Invalid deadline value in CSV: {row[1]}")
 
     return budget, deadline
 
@@ -228,10 +230,13 @@ def _find_section_indices(rows: List[List[str]]) -> Tuple[int, int]:
 
     for i, row in enumerate(rows):
         if len(row) > 0:
-            if row[0].lower() == 'developers':
+            # Strip whitespace and check for exact match
+            if row[0].strip().lower() == 'developers':
                 dev_start_idx = i
-            elif row[0].lower() == 'projects':
+                logging.info(f"Found Developers section at row {i}")
+            elif row[0].strip().lower() == 'projects':
                 proj_start_idx = i
+                logging.info(f"Found Projects section at row {i}")
 
     return dev_start_idx, proj_start_idx
 

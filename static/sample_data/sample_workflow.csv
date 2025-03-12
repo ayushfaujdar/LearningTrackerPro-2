@@ -1,18 +1,20 @@
+
 Budget,50000
-Deadline,30
+Deadline,60
 
 Developers
 Name,Rate,Hours per day,Skills
-John Dev,75,8,Python Database Backend
-Sarah UI,85,6,UI UX Frontend JavaScript
-Mike Full,95,8,Python JavaScript DevOps Database
-Lisa Test,65,7,QA Testing Documentation
-Dave Ops,90,6,DevOps AWS Security
+John Smith,75,8,"Python, JavaScript, React, Database"
+Maria Garcia,90,6,"Python, Data Science, ML, API"
+Alex Chen,60,8,"JavaScript, React, UI/UX, HTML, CSS"
+Priya Patel,100,4,"Architecture, DevOps, Security, Cloud"
+Carlos Rodriguez,85,7,"Backend, Database, Java, Kubernetes"
 
 Projects
 Name,Hours,Priority,Dependencies,Required Skills
-API Development,80,5,,Python Backend Database
-User Interface,60,4,,UI UX Frontend JavaScript
-Testing,40,3,API Development User Interface,QA Testing
-Deployment,30,2,Testing,DevOps AWS
-Documentation,20,1,API Development User Interface,Documentation
+Frontend Dashboard,120,2,,"JavaScript, React, UI/UX"
+API Development,80,4,,"Python, API"
+Database Migration,60,3,,"Database, SQL"
+User Authentication,40,5,Frontend Dashboard,"Security, Backend"
+Data Analytics,100,1,API Development,"Python, Data Science, ML"
+Cloud Deployment,70,2,Database Migration,"DevOps, Cloud, Kubernetes"

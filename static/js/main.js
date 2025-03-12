@@ -822,19 +822,32 @@ async function loadSampleData() {
         sampleBtn.disabled = true;
         feather.replace();
         
-        // Fetch sample CSV file
-        const response = await fetch('/static/sample_data/sample_workflow.csv');
+        // First try Excel file, then fallback to CSV if that fails
+        let response;
+        let file;
         
-        // Check for errors
-        if (!response.ok) {
-            throw new Error('Failed to load sample data');
+        try {
+            // Try Excel file first
+            response = await fetch('/static/sample_data/sample_workflow.xlsx');
+            if (response.ok) {
+                const blob = await response.blob();
+                file = new File([blob], 'sample_workflow.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                console.log("Using Excel sample file");
+            }
+        } catch (error) {
+            console.warn("Excel file failed to load, trying CSV");
         }
         
-        // Convert to blob
-        const blob = await response.blob();
-        
-        // Create file object
-        const file = new File([blob], 'sample_workflow.csv', { type: 'text/csv' });
+        if (!file) {
+            // Fallback to CSV if Excel failed
+            response = await fetch('/static/sample_data/sample_workflow.csv');
+            if (!response.ok) {
+                throw new Error('Failed to load sample data files');
+            }
+            const blob = await response.blob();
+            file = new File([blob], 'sample_workflow.csv', { type: 'text/csv' });
+            console.log("Using CSV sample file");
+        }
         
         // Create form data
         const formData = new FormData();
