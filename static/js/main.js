@@ -562,7 +562,7 @@ function loadOptimizationFromHistory(historyEntry) {
                 </div>
                 <div class="form-group">
                     <label>Skills (comma separated)</label>
-                    <input type="text" class="dev-skills" value="${dev.skills.join(', ')}" placeholder="Python, UI, Database">
+                    <input type="text" class="dev-skills" value="${Array.isArray(dev.skills) ? dev.skills.join : ""(', ')}" placeholder="Python, UI, Database">
                 </div>
                 <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
             </div>
