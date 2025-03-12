@@ -42,6 +42,11 @@ def index():
     """Render the main application page"""
     return render_template('index.html')
 
+@app.route('/data-format')
+def data_format():
+    """Render the data format guide page"""
+    return render_template('data_format.html')
+
 @app.route('/import-file', methods=['POST'])
 def import_file():
     """Process file upload and extract project and developer data"""

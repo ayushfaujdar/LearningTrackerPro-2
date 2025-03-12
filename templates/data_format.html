@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQWSE Data Format - Infosys Cloud & Workforce Optimizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="brand-wrapper">
+                <h1><span class="highlight">A</span>Q<span class="highlight">W</span>S<span class="highlight">E</span></h1>
+                <h2>Infosys Cloud & Workforce Optimizer</h2>
+                <div class="powered-by">Powered by Quantum-AI Hybrid Technology</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <div class="card-header">
+                <h3><i data-feather="file-text"></i> Data Format Guide</h3>
+            </div>
+            <div class="card-body">
+                <div class="info-box">
+                    <p>AQWSE accepts both CSV and Excel files for importing project and developer data. You can download our sample templates below to get started quickly.</p>
+                    <div class="download-links">
+                        <a href="{{ url_for('static', filename='sample_data/sample_workflow.csv') }}" class="btn-secondary" download>
+                            <i data-feather="download"></i> Download CSV Template
+                        </a>
+                        <a href="{{ url_for('static', filename='sample_data/sample_workflow.xlsx') }}" class="btn-secondary" download>
+                            <i data-feather="download"></i> Download Excel Template
+                        </a>
+                    </div>
+                </div>
+
+                <h4>CSV Format</h4>
+                <p>For CSV files, use the following structure:</p>
+                
+                <div class="code-block">
+                    <pre>
+Budget,50000
+Deadline,30
+
+Developers
+Name,Rate,Hours per day,Skills
+John Dev,75,8,Python Database Backend
+Sarah UI,85,6,UI UX Frontend JavaScript
+Mike Full,95,8,Python JavaScript DevOps Database
+
+Projects
+Name,Hours,Priority,Dependencies,Required Skills
+API Development,80,5,,Python Backend Database
+User Interface,60,4,,UI UX Frontend JavaScript
+Testing,40,3,API Development User Interface,QA Testing</pre>
+                </div>
+
+                <h4>Excel Format</h4>
+                <p>For Excel files, create three separate sheets:</p>
+                
+                <ol>
+                    <li>
+                        <strong>Metadata</strong> - A two-column sheet with Budget and Deadline data
+                        <div class="table-example">
+                            <table>
+                                <tr>
+                                    <td>Budget</td>
+                                    <td>50000</td>
+                                </tr>
+                                <tr>
+                                    <td>Deadline</td>
+                                    <td>30</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Developers</strong> - A sheet with developer information
+                        <div class="table-example">
+                            <table>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Rate</th>
+                                    <th>Hours per day</th>
+                                    <th>Skills</th>
+                                </tr>
+                                <tr>
+                                    <td>John Dev</td>
+                                    <td>75</td>
+                                    <td>8</td>
+                                    <td>Python, Database, Backend</td>
+                                </tr>
+                                <tr>
+                                    <td>Sarah UI</td>
+                                    <td>85</td>
+                                    <td>6</td>
+                                    <td>UI, UX, Frontend, JavaScript</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Projects</strong> - A sheet with project information
+                        <div class="table-example">
+                            <table>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Hours</th>
+                                    <th>Priority</th>
+                                    <th>Dependencies</th>
+                                    <th>Required Skills</th>
+                                </tr>
+                                <tr>
+                                    <td>API Development</td>
+                                    <td>80</td>
+                                    <td>5</td>
+                                    <td></td>
+                                    <td>Python, Backend, Database</td>
+                                </tr>
+                                <tr>
+                                    <td>User Interface</td>
+                                    <td>60</td>
+                                    <td>4</td>
+                                    <td></td>
+                                    <td>UI, UX, Frontend, JavaScript</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </li>
+                </ol>
+
+                <h4>Field Descriptions</h4>
+                
+                <div class="field-description">
+                    <h5>Metadata</h5>
+                    <ul>
+                        <li><strong>Budget</strong> - Total available budget in dollars</li>
+                        <li><strong>Deadline</strong> - Project deadline in days</li>
+                    </ul>
+                    
+                    <h5>Developers</h5>
+                    <ul>
+                        <li><strong>Name</strong> - Developer's name (must be unique)</li>
+                        <li><strong>Rate</strong> - Hourly rate in dollars</li>
+                        <li><strong>Hours per day</strong> - Available working hours per day</li>
+                        <li><strong>Skills</strong> - Comma-separated list of skills</li>
+                    </ul>
+                    
+                    <h5>Projects</h5>
+                    <ul>
+                        <li><strong>Name</strong> - Project name (must be unique)</li>
+                        <li><strong>Hours</strong> - Estimated hours to complete</li>
+                        <li><strong>Priority</strong> - Importance (1-5, where 5 is highest)</li>
+                        <li><strong>Dependencies</strong> - Space-separated list of projects that must be completed first</li>
+                        <li><strong>Required Skills</strong> - Comma-separated list of skills needed</li>
+                    </ul>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="{{ url_for('index') }}" class="btn-primary">
+                        <i data-feather="arrow-left"></i> Back to Optimizer
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Infosys Cloud & Workforce Optimizer</h3>
+                    <p>Powered by AQWSE - AI-Quantum Workflow Synergy Engine © 2023</p>
+                </div>
+                <div class="footer-tech">
+                    <div class="tech-item">
+                        <span class="tech-icon"><i data-feather="box"></i></span>
+                        <span class="tech-name">IBM Qiskit</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-icon"><i data-feather="cpu"></i></span>
+                        <span class="tech-name">OpenAI</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-icon"><i data-feather="database"></i></span>
+                        <span class="tech-name">PostgreSQL</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
+</body>
+</html>
