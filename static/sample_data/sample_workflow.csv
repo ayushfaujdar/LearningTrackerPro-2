@@ -1,0 +1,19 @@
+Budget,50000
+Deadline,60
+
+Developers
+Name,Rate,Hours per day,Skills
+John Smith,75,8,"Python, JavaScript, React, Database"
+Maria Garcia,90,6,"Python, Data Science, ML, API"
+Alex Chen,60,8,"JavaScript, React, UI/UX, HTML, CSS"
+Priya Patel,100,4,"Architecture, DevOps, Security, Cloud"
+Carlos Rodriguez,85,7,"Backend, Database, Java, Kubernetes"
+
+Projects
+Name,Hours,Priority,Dependencies,Required Skills
+Frontend Dashboard,120,2,,"JavaScript, React, UI/UX"
+API Development,80,4,,"Python, API"
+Database Migration,60,3,,"Database, SQL"
+User Authentication,40,5,Frontend Dashboard,"Security, Backend"
+Data Analytics,100,1,API Development,"Python, Data Science, ML"
+Cloud Deployment,70,2,Database Migration,"DevOps, Cloud, Kubernetes"

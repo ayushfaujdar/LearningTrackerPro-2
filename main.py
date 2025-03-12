@@ -6,6 +6,7 @@ import optimizer
 import ai_insights
 import quantum_optimizer
 import openai_insights
+import file_parser
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -40,6 +41,36 @@ openai_gen = openai_insights.OpenAIInsightsGenerator(api_key=openai_key)
 def index():
     """Render the main application page"""
     return render_template('index.html')
+
+@app.route('/import-file', methods=['POST'])
+def import_file():
+    """Process file upload and extract project and developer data"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file uploaded'}), 400
+            
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No file selected'}), 400
+            
+        if file:
+            # Read the file content
+            file_content = file.read()
+            
+            # Parse the file based on its type
+            result = file_parser.parse_uploaded_file(file_content, file.filename)
+            
+            if not result.get('success', False):
+                logger.error(f"File parsing error: {result.get('error', 'Unknown error')}")
+                return jsonify(result), 400
+                
+            logger.info(f"Successfully imported data from file: {file.filename}")
+            return jsonify(result)
+            
+    except Exception as e:
+        logger.error(f"Error processing file upload: {str(e)}")
+        return jsonify({'success': False, 'error': f'File upload failed: {str(e)}'}), 500
 
 @app.route('/optimize', methods=['POST'])
 def optimize():
