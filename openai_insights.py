@@ -29,12 +29,18 @@ class OpenAIInsightsGenerator:
         
         if self.api_key:
             try:
-                # Initialize the OpenAI client
-                openai.api_key = self.api_key
-                self.client = openai.OpenAI(api_key=self.api_key)
+                # Initialize the OpenAI client - handle different package versions
+                if hasattr(openai, 'OpenAI'):
+                    # New OpenAI package structure
+                    self.client = openai.OpenAI(api_key=self.api_key)
+                else:
+                    # Legacy OpenAI package structure
+                    openai.api_key = self.api_key
+                    self.client = openai
                 logger.info("Successfully initialized OpenAI client")
             except Exception as e:
                 logger.error(f"Failed to initialize OpenAI client: {str(e)}")
+                self.client = None
     
     def generate_insights(self, data: Dict[str, Any], 
                           optimization_result: Dict[str, Any]) -> Dict[str, Any]:
@@ -180,16 +186,37 @@ class OpenAIInsightsGenerator:
                 {"role": "user", "content": prompt["user"]}
             ]
             
-            # Call the OpenAI Chat API
-            response = self.client.chat.completions.create(
-                model="gpt-4",  # Can use gpt-3.5-turbo for faster, cheaper responses
-                messages=messages,
-                temperature=0.7,
-                max_tokens=1000
-            )
-            
-            # Extract the response text
-            return response.choices[0].message.content
+            # Call the OpenAI Chat API - handle different client versions
+            try:
+                if hasattr(self.client, 'chat') and hasattr(self.client.chat, 'completions'):
+                    # New OpenAI client structure
+                    response = self.client.chat.completions.create(
+                        model="gpt-4",  # Can use gpt-3.5-turbo for faster, cheaper responses
+                        messages=messages,
+                        temperature=0.7,
+                        max_tokens=1000
+                    )
+                    # Extract the response text
+                    return response.choices[0].message.content
+                else:
+                    # Legacy OpenAI client structure
+                    response = self.client.ChatCompletion.create(
+                        model="gpt-4",  # Can use gpt-3.5-turbo for faster, cheaper responses
+                        messages=messages,
+                        temperature=0.7,
+                        max_tokens=1000
+                    )
+                    # Extract the response text
+                    return response.choices[0].message.content
+            except AttributeError:
+                # Final fallback for very old API versions
+                response = self.client.Completion.create(
+                    engine="davinci",
+                    prompt=prompt["user"],
+                    temperature=0.7,
+                    max_tokens=1000
+                )
+                return response.choices[0].text
             
         except Exception as e:
             logger.error(f"OpenAI API call failed: {str(e)}")

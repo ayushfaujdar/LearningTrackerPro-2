@@ -83,55 +83,73 @@ def optimize():
     try:
         # Get input data from request
         data = request.json
+        logger.info(f"Received optimization request with {len(data.get('developers', []))} developers and {len(data.get('projects', []))} projects")
         
         # Validate input data
         if not _validate_input(data):
-            return jsonify({'error': 'Invalid input data'}), 400
+            logger.error("Input validation failed")
+            return jsonify({'success': False, 'error': 'Invalid input data'}), 400
         
         # Check if we should try quantum optimization
         use_quantum_param = request.args.get('quantum', 'true').lower() == 'true'
         
-        if use_quantum and use_quantum_param:
-            # Run quantum-powered optimization algorithm
-            logger.info("Using quantum-powered optimization")
-            optimization_result = quantum_opt.optimize(
-                data['budget'],
-                data['deadline'],
-                data['developers'],
-                data['projects']
-            )
-        else:
-            # Run classical optimization algorithm
-            logger.info("Using classical optimization")
-            optimization_result = optimizer.run_optimization(
-                data['budget'],
-                data['deadline'],
-                data['developers'],
-                data['projects']
-            )
+        try:
+            if use_quantum and use_quantum_param:
+                # Run quantum-powered optimization algorithm
+                logger.info("Using quantum-powered optimization")
+                optimization_result = quantum_opt.optimize(
+                    data['budget'],
+                    data['deadline'],
+                    data['developers'],
+                    data['projects']
+                )
+            else:
+                # Run classical optimization algorithm
+                logger.info("Using classical optimization")
+                optimization_result = optimizer.run_optimization(
+                    data['budget'],
+                    data['deadline'],
+                    data['developers'],
+                    data['projects']
+                )
+                
+            logger.info(f"Optimization completed successfully with {len(optimization_result.get('assignments', []))} assignments")
+        except Exception as opt_error:
+            logger.error(f"Optimization algorithm failed: {str(opt_error)}")
+            return jsonify({'success': False, 'error': f'Optimization algorithm failed: {str(opt_error)}'}), 500
         
-        # Generate AI insights - try OpenAI first, fall back to deterministic
-        if use_openai:
-            logger.info("Generating OpenAI-powered insights")
-            insights = openai_gen.generate_insights(
-                data, 
-                optimization_result
-            )
-        else:
-            logger.info("Using deterministic insights")
+        try:
+            # Generate AI insights - try OpenAI first, fall back to deterministic
+            if use_openai:
+                logger.info("Generating OpenAI-powered insights")
+                insights = openai_gen.generate_insights(
+                    data, 
+                    optimization_result
+                )
+            else:
+                logger.info("Using deterministic insights")
+                insights = ai_insights.generate_insights(
+                    data, 
+                    optimization_result
+                )
+            
+            logger.info("Insights generation completed successfully")
+        except Exception as insights_error:
+            logger.error(f"Insights generation failed: {str(insights_error)}")
+            # Fall back to deterministic insights on failure
             insights = ai_insights.generate_insights(
                 data, 
                 optimization_result
             )
         
         # Combine results
-        result = {**optimization_result, **insights}
+        result = {**optimization_result, **{'success': True}, **insights}
         
         return jsonify(result)
     
     except Exception as e:
         logger.error(f"Error in optimization process: {str(e)}")
-        return jsonify({'error': f'Optimization failed: {str(e)}'}), 500
+        return jsonify({'success': False, 'error': f'Optimization failed: {str(e)}'}), 500
 
 def _validate_input(data):
     """Validate the input data"""
