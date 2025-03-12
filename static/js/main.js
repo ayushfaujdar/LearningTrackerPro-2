@@ -34,6 +34,18 @@ function initFormEventListeners() {
     // Reset button
     document.getElementById('reset-btn').addEventListener('click', resetForm);
     
+    // Data import button
+    document.getElementById('import-data-btn').addEventListener('click', toggleImportOptions);
+    
+    // Sample data button
+    document.getElementById('sample-data-btn').addEventListener('click', loadSampleData);
+    
+    // CSV/Excel import button
+    document.getElementById('csv-import-btn').addEventListener('click', triggerFileUpload);
+    
+    // File upload change
+    document.getElementById('file-upload').addEventListener('change', handleFileUpload);
+    
     // Enable remove buttons when there's more than one row
     updateRemoveButtons();
 }
@@ -619,7 +631,253 @@ function loadOptimizationFromHistory(historyEntry) {
 }
 
 /**
- * Fill the form with sample data for demo purposes
+ * Toggle import options visibility
+ */
+function toggleImportOptions() {
+    const importOptions = document.getElementById('import-options');
+    if (importOptions.classList.contains('hidden')) {
+        importOptions.classList.remove('hidden');
+    } else {
+        importOptions.classList.add('hidden');
+    }
+}
+
+/**
+ * Trigger file upload dialog
+ */
+function triggerFileUpload() {
+    document.getElementById('file-upload').click();
+}
+
+/**
+ * Handle file upload
+ */
+async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    try {
+        // Show loading state
+        const importBtn = document.getElementById('csv-import-btn');
+        const originalBtnText = importBtn.innerHTML;
+        importBtn.innerHTML = '<i data-feather="loader"></i> Importing...';
+        importBtn.disabled = true;
+        feather.replace();
+        
+        // Create form data
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        // Send to server
+        const response = await fetch('/import-file', {
+            method: 'POST',
+            body: formData
+        });
+        
+        // Check for errors
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'File import failed');
+        }
+        
+        // Process response
+        const result = await response.json();
+        
+        // Fill form with imported data
+        fillFormWithImportedData(result);
+        
+        // Hide import options
+        document.getElementById('import-options').classList.add('hidden');
+        
+        // Show success message
+        alert(`Successfully imported data from ${file.name}`);
+        
+    } catch (error) {
+        console.error('Error importing file:', error);
+        alert(error.message || 'An error occurred during file import');
+    } finally {
+        // Reset file input
+        event.target.value = '';
+        
+        // Restore button state
+        const importBtn = document.getElementById('csv-import-btn');
+        importBtn.innerHTML = '<i data-feather="upload"></i> Import CSV/Excel';
+        importBtn.disabled = false;
+        feather.replace();
+    }
+}
+
+/**
+ * Fill form with imported data
+ */
+function fillFormWithImportedData(data) {
+    // Set budget and deadline
+    document.getElementById('budget').value = data.budget;
+    document.getElementById('deadline').value = data.deadline;
+    
+    // Reset developers and projects containers
+    const devContainer = document.getElementById('developers-container');
+    const projContainer = document.getElementById('projects-container');
+    
+    while (devContainer.firstChild) {
+        devContainer.removeChild(devContainer.firstChild);
+    }
+    
+    while (projContainer.firstChild) {
+        projContainer.removeChild(projContainer.firstChild);
+    }
+    
+    // Add developers
+    data.developers.forEach(dev => {
+        const newRow = document.createElement('div');
+        newRow.className = 'developer-row';
+        
+        newRow.innerHTML = `
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="dev-name" value="${dev.name}" required>
+                </div>
+                <div class="form-group">
+                    <label>Rate ($/hour)</label>
+                    <input type="number" class="dev-rate" value="${dev.rate}" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Hours/day</label>
+                    <input type="number" class="dev-hours" value="${dev.hours_per_day}" min="1" max="24" required>
+                </div>
+                <div class="form-group">
+                    <label>Skills (comma separated)</label>
+                    <input type="text" class="dev-skills" value="${dev.skills.join(', ')}" placeholder="Python, UI, Database">
+                </div>
+                <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
+            </div>
+        `;
+        
+        devContainer.appendChild(newRow);
+        
+        // Add event listener to remove button
+        newRow.querySelector('.remove-btn').addEventListener('click', function() {
+            devContainer.removeChild(newRow);
+            updateRemoveButtons();
+        });
+    });
+    
+    // Add projects
+    data.projects.forEach(proj => {
+        const newRow = document.createElement('div');
+        newRow.className = 'project-row';
+        
+        newRow.innerHTML = `
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="proj-name" value="${proj.name}" required>
+                </div>
+                <div class="form-group">
+                    <label>Hours</label>
+                    <input type="number" class="proj-hours" value="${proj.hours}" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Priority (1-5)</label>
+                    <input type="number" class="proj-priority" value="${proj.priority}" min="1" max="5" required>
+                </div>
+                <div class="form-group">
+                    <label>Dependencies</label>
+                    <input type="text" class="proj-deps" value="${(proj.dependencies || []).join(', ')}" placeholder="Project1, Project2">
+                </div>
+                <div class="form-group">
+                    <label>Required Skills</label>
+                    <input type="text" class="proj-skills" value="${(proj.required_skills || []).join(', ')}" placeholder="Python, UI">
+                </div>
+                <button type="button" class="remove-btn" title="Remove"><i data-feather="x-circle"></i></button>
+            </div>
+        `;
+        
+        projContainer.appendChild(newRow);
+        
+        // Add event listener to remove button
+        newRow.querySelector('.remove-btn').addEventListener('click', function() {
+            projContainer.removeChild(newRow);
+            updateRemoveButtons();
+        });
+    });
+    
+    // Initialize feather icons
+    feather.replace();
+    
+    // Update remove buttons
+    updateRemoveButtons();
+}
+
+/**
+ * Load sample data from server
+ */
+async function loadSampleData() {
+    try {
+        // Show loading state
+        const sampleBtn = document.getElementById('sample-data-btn');
+        const originalBtnText = sampleBtn.innerHTML;
+        sampleBtn.innerHTML = '<i data-feather="loader"></i> Loading...';
+        sampleBtn.disabled = true;
+        feather.replace();
+        
+        // Fetch sample CSV file
+        const response = await fetch('/static/sample_data/sample_workflow.csv');
+        
+        // Check for errors
+        if (!response.ok) {
+            throw new Error('Failed to load sample data');
+        }
+        
+        // Convert to blob
+        const blob = await response.blob();
+        
+        // Create file object
+        const file = new File([blob], 'sample_workflow.csv', { type: 'text/csv' });
+        
+        // Create form data
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        // Send to server for parsing
+        const parseResponse = await fetch('/import-file', {
+            method: 'POST',
+            body: formData
+        });
+        
+        // Check for errors
+        if (!parseResponse.ok) {
+            const errorData = await parseResponse.json();
+            throw new Error(errorData.error || 'Sample data import failed');
+        }
+        
+        // Process response
+        const result = await parseResponse.json();
+        
+        // Fill form with sample data
+        fillFormWithImportedData(result);
+        
+        // Hide import options
+        document.getElementById('import-options').classList.add('hidden');
+        
+    } catch (error) {
+        console.error('Error loading sample data:', error);
+        alert(error.message || 'An error occurred loading sample data');
+        
+        // Fallback to hard-coded sample data
+        fillSampleData();
+    } finally {
+        // Restore button state
+        const sampleBtn = document.getElementById('sample-data-btn');
+        sampleBtn.innerHTML = '<i data-feather="clipboard"></i> Load Sample Data';
+        sampleBtn.disabled = false;
+        feather.replace();
+    }
+}
+
+/**
+ * Fill form with hard-coded sample data (fallback if server sample fails)
  */
 function fillSampleData() {
     // Set budget and deadline
