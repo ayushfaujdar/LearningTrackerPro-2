@@ -1028,9 +1028,5 @@ function fillSampleData() {
 
 /**
  * Update charts with new data
+ * This function is now implemented in charts.js
  */
-function updateCharts(result) {
-    // Placeholder for chart updates
-    // This section needs to be implemented based on the specific charting library used
-    console.log('Charts updated with new data:', result);
-}

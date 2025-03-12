@@ -335,17 +335,21 @@ td {
 
 .charts-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 15px;
   margin-bottom: 25px;
+  overflow-x: auto;
+  padding-bottom: 10px;
 }
 
 .chart-box {
-  flex: 1;
-  min-width: 300px;
+  flex: 0 0 auto;
+  width: 220px;
+  height: 180px;
   background-color: white;
   border-radius: 6px;
-  padding: 15px;
+  padding: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
