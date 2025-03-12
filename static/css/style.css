@@ -529,3 +529,72 @@ footer {
     width: 100%;
   }
 }
+
+/* Data format guide styles */
+.info-box {
+  background-color: var(--primary-light);
+  border-left: 4px solid var(--primary-color);
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.download-links {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.code-block {
+  background-color: #f5f5f5;
+  border: 1px solid var(--border-color);
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  font-family: 'Courier New', Courier, monospace;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+}
+
+.table-example {
+  margin: 10px 0 20px 0;
+  overflow-x: auto;
+}
+
+.table-example table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 600px;
+  border: 1px solid var(--border-color);
+}
+
+.table-example th, .table-example td {
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  text-align: left;
+}
+
+.table-example th {
+  background-color: #f2f2f2;
+}
+
+.field-description {
+  margin: 20px 0;
+}
+
+.field-description h5 {
+  margin: 15px 0 5px 0;
+  color: var(--primary-color);
+}
+
+.field-description ul {
+  padding-left: 20px;
+}
+
+.field-description li {
+  margin-bottom: 5px;
+}
