@@ -133,6 +133,20 @@
                         <button type="button" id="reset-btn" class="btn-secondary">
                             <i data-feather="refresh-cw"></i> Reset
                         </button>
+                        <div class="data-import-section">
+                            <button type="button" id="import-data-btn" class="btn-secondary">
+                                <i data-feather="file-text"></i> Import Data
+                            </button>
+                            <div id="import-options" class="hidden">
+                                <button type="button" id="sample-data-btn" class="btn-sm">
+                                    <i data-feather="clipboard"></i> Load Sample Data
+                                </button>
+                                <button type="button" id="csv-import-btn" class="btn-sm">
+                                    <i data-feather="upload"></i> Import CSV/Excel
+                                </button>
+                                <input type="file" id="file-upload" accept=".csv,.xlsx,.xls" class="hidden">
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
