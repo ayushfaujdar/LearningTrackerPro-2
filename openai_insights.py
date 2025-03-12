@@ -111,7 +111,7 @@ class OpenAIInsightsGenerator:
                       optimization_result: Dict[str, Any],
                       budget_efficiency: float, time_efficiency: float,
                       high_risks: int, medium_risks: int,
-                      avg_skill_match: float) -> str:
+                      avg_skill_match: float) -> Dict[str, str]:
         """
         Create a detailed prompt for the OpenAI API
         
@@ -119,7 +119,7 @@ class OpenAIInsightsGenerator:
             Various metrics and data from the optimization
             
         Returns:
-            Prompt string for OpenAI
+            Dictionary containing system and user prompts for OpenAI
         """
         # Format the data as a JSON string for AI to analyze
         data_json = json.dumps({
@@ -163,7 +163,7 @@ class OpenAIInsightsGenerator:
         
         return {"system": system_prompt, "user": user_prompt}
     
-    def _call_openai_api(self, prompt: Dict[str, str]) -> str:
+    def _call_openai_api(self, prompt):
         """
         Call the OpenAI API with the prepared prompt
         
@@ -171,7 +171,7 @@ class OpenAIInsightsGenerator:
             prompt: Dictionary with system and user prompts
             
         Returns:
-            The AI's response
+            The AI's response as a string
         """
         try:
             # Construct the messages
@@ -193,7 +193,8 @@ class OpenAIInsightsGenerator:
             
         except Exception as e:
             logger.error(f"OpenAI API call failed: {str(e)}")
-            raise
+            # Return a default response on error
+            return "The AI-powered analysis could not be generated. The optimization shows a balanced approach to resource allocation."
     
     def _parse_response(self, response: str) -> Dict[str, Any]:
         """

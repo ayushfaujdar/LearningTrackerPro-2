@@ -4,12 +4,37 @@ import logging
 from flask import Flask, request, render_template, jsonify
 import optimizer
 import ai_insights
+import quantum_optimizer
+import openai_insights
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "aqwse-development-key")
+
+# Initialize quantum optimizer and OpenAI insights generator
+ibm_token = os.environ.get("IBM_QUANTUM_TOKEN")
+openai_key = os.environ.get("OPENAI_API_KEY")
+
+# Track if we're using quantum computing and/or OpenAI
+use_quantum = ibm_token is not None
+use_openai = openai_key is not None
+
+if use_quantum:
+    logger.info("IBM Quantum token found - will attempt to use quantum computing")
+else:
+    logger.info("No IBM Quantum token found - using classical optimization")
+
+if use_openai:
+    logger.info("OpenAI API key found - will use GPT for insights")
+else:
+    logger.info("No OpenAI API key found - using deterministic insights")
+
+# Initialize our optimizers and insight generators
+quantum_opt = quantum_optimizer.QuantumWorkflowOptimizer(use_quantum=use_quantum, ibm_token=ibm_token)
+openai_gen = openai_insights.OpenAIInsightsGenerator(api_key=openai_key)
 
 @app.route('/')
 def index():
@@ -27,19 +52,41 @@ def optimize():
         if not _validate_input(data):
             return jsonify({'error': 'Invalid input data'}), 400
         
-        # Run optimization algorithm
-        optimization_result = optimizer.run_optimization(
-            data['budget'],
-            data['deadline'],
-            data['developers'],
-            data['projects']
-        )
+        # Check if we should try quantum optimization
+        use_quantum_param = request.args.get('quantum', 'true').lower() == 'true'
         
-        # Generate AI insights
-        insights = ai_insights.generate_insights(
-            data, 
-            optimization_result
-        )
+        if use_quantum and use_quantum_param:
+            # Run quantum-powered optimization algorithm
+            logger.info("Using quantum-powered optimization")
+            optimization_result = quantum_opt.optimize(
+                data['budget'],
+                data['deadline'],
+                data['developers'],
+                data['projects']
+            )
+        else:
+            # Run classical optimization algorithm
+            logger.info("Using classical optimization")
+            optimization_result = optimizer.run_optimization(
+                data['budget'],
+                data['deadline'],
+                data['developers'],
+                data['projects']
+            )
+        
+        # Generate AI insights - try OpenAI first, fall back to deterministic
+        if use_openai:
+            logger.info("Generating OpenAI-powered insights")
+            insights = openai_gen.generate_insights(
+                data, 
+                optimization_result
+            )
+        else:
+            logger.info("Using deterministic insights")
+            insights = ai_insights.generate_insights(
+                data, 
+                optimization_result
+            )
         
         # Combine results
         result = {**optimization_result, **insights}
@@ -47,7 +94,7 @@ def optimize():
         return jsonify(result)
     
     except Exception as e:
-        logging.error(f"Error in optimization process: {str(e)}")
+        logger.error(f"Error in optimization process: {str(e)}")
         return jsonify({'error': f'Optimization failed: {str(e)}'}), 500
 
 def _validate_input(data):
